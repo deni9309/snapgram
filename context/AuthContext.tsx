@@ -38,6 +38,7 @@ const AuthProvider = ({ children }: { children: ReactNode; }) => {
    * @returns **true** if the user is authenticated, otherwise **false**
    */
   const checkAuthUser = async () => {
+    setIsLoading(true);
     try {
       const currentAccount = await getCurrentUser();
 
@@ -52,7 +53,7 @@ const AuthProvider = ({ children }: { children: ReactNode; }) => {
         });
 
         setIsAuthenticated(true);
-       // localStorage.setItem('cookieFallback', currentAccount.$id)
+        // localStorage.setItem('cookieFallback', currentAccount.$id)
         return true;
       }
 
@@ -66,9 +67,11 @@ const AuthProvider = ({ children }: { children: ReactNode; }) => {
   };
 
   useEffect(() => {
-    // || localStorage.getItem('cookieFallback') === null
+    const cookieFallback = localStorage.getItem('cookieFallback');
     if (
-      localStorage.getItem('cookieFallback') === '[]'
+      cookieFallback === '[]' ||
+      cookieFallback === null ||
+      cookieFallback === undefined
     ) navigate('/sign-in');
 
     checkAuthUser();

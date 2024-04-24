@@ -3,7 +3,10 @@ import { ID, Query } from "appwrite";
 import { TNewUser } from "@/types";
 import { account, appwriteConfig, avatars, databases } from "./config";
 
-/** 
+// ============================= AUTH =============================
+
+/** SIGN UP
+ * 
  * Authenticate: Creates a new account for the user, then saves that user to the database.
  */
 export async function createUserAccount(user: TNewUser) {
@@ -34,7 +37,8 @@ export async function createUserAccount(user: TNewUser) {
   }
 }
 
-/**
+/** SAVE USER TO DB
+ * 
  *  Saves the user to the database
  */
 export async function saveUserToDB(user: {
@@ -58,7 +62,10 @@ export async function saveUserToDB(user: {
   }
 }
 
-/** Creates user's session and returns that session */
+/** SIGN IN
+ * 
+ *  Creates user's session and returns that session 
+ * */
 export async function signInAccount(user: { email: string; password: string; }) {
   try {
     const session = await account.createEmailPasswordSession(user.email, user.password);
@@ -69,7 +76,19 @@ export async function signInAccount(user: { email: string; password: string; }) 
   }
 }
 
-/**
+/** GET ACCOUNT */
+export async function getAccount() {
+  try {
+    const currentAccount = await account.get();
+
+    return currentAccount;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/** GET USER
+ * 
  * If found in the database, returns the user(document). Otherwise returns undefined.
  */
 export async function getCurrentUser() {
@@ -81,12 +100,24 @@ export async function getCurrentUser() {
     const currentUser = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      [Query.equal('accountId', currentAccount.$id)]
+      [Query.equal("accountId", currentAccount.$id)]
     );
 
     if (!currentUser) throw Error;
 
     return currentUser.documents[0];
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+/** SIGN OUT */ 
+export async function signOutAccount() {
+  try {
+    const session = await account.deleteSession('current');
+
+    return session;
   } catch (error) {
     console.log(error);
   }

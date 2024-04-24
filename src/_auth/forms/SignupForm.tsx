@@ -19,6 +19,7 @@ const SignupForm = () => {
 
   const navigate = useNavigate();
 
+  // Queries
   const { mutateAsync: createUserAccount, isPending: isCreatingAccount } = useCreateUserAccount();
   const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount();
 
@@ -32,26 +33,35 @@ const SignupForm = () => {
     }
   });
 
-  async function onSubmit(values: z.infer<typeof SignupValidation>) {
-    const newUser = await createUserAccount(values);
+  // Handler
+  const handleSignup = async (user: z.infer<typeof SignupValidation>) => {
+    try {
+      const newUser = await createUserAccount(user);
 
-    if (!newUser) {
-      return toast({ title: 'Sign up failed. Please try again.' });
-    }
+      if (!newUser) {
+        toast({ title: 'Sign up failed. Please try again.' });
+        return;
+      }
 
-    const session = await signInAccount({ email: values.email, password: values.password });
-    if (!session) {
-      return toast({ title: 'Sign in failed. Please try again.' });
-    }
+      const session = await signInAccount({ email: user.email, password: user.password });
+      if (!session) {
+        toast({ title: 'Sign in failed. Please try again.' });
+        navigate('/sign-in');
+        return;
+      }
 
-    const isLoggedIn = await checkAuthUser();    
-    if (isLoggedIn) {
-      form.reset();
-      navigate('/');
-    } else {
-      return toast({ title: 'Sign in failed. Please try again.' });
+      const isLoggedIn = await checkAuthUser();
+      if (isLoggedIn) {
+        form.reset();
+        navigate('/');
+      } else {
+        toast({ title: 'Sign in failed. Please try again.' });
+        return;
+      }
+    } catch (error) {
+      console.log({ error });
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -60,7 +70,7 @@ const SignupForm = () => {
         <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">Create a new account</h2>
         <p className="text-light-3 small-medium md:base-regular mt-2">To use Snapgram, please enter your details</p>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
+        <form onSubmit={form.handleSubmit(handleSignup)} className="flex flex-col gap-5 w-full mt-4">
           <FormField
             control={form.control}
             name="name"
@@ -110,7 +120,7 @@ const SignupForm = () => {
             )}
           />
           <Button type="submit" className="shad-button_primary">
-            {isCreatingAccount ? (
+            {isCreatingAccount || isSigningIn || isUserLoading ? (
               <div className="flex-center gap-2">
                 <Loader /> Loading...
               </div>
