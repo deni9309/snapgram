@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 import { AuthContextType, TUser } from '../src/types';
@@ -24,7 +24,7 @@ const INITIAL_STATE = {
 
 const AuthContext = createContext<AuthContextType>(INITIAL_STATE);
 
-const AuthProvider = ({ children }: { children: React.ReactNode; }) => {
+const AuthProvider = ({ children }: { children: ReactNode; }) => {
   const [user, setUser] = useState<TUser>(INITIAL_USER);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,6 +52,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode; }) => {
         });
 
         setIsAuthenticated(true);
+       // localStorage.setItem('cookieFallback', currentAccount.$id)
         return true;
       }
 
@@ -65,9 +66,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode; }) => {
   };
 
   useEffect(() => {
+    // || localStorage.getItem('cookieFallback') === null
     if (
-      localStorage.getItem('cookieFallback') === '[]' ||
-      localStorage.getItem('cookieFallback') === null
+      localStorage.getItem('cookieFallback') === '[]'
     ) navigate('/sign-in');
 
     checkAuthUser();
@@ -89,6 +90,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode; }) => {
   );
 };
 
-export default AuthContext;
+export default AuthProvider;
 
 export const useUserContext = () => useContext(AuthContext);

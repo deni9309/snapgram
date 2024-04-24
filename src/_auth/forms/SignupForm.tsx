@@ -1,8 +1,9 @@
 import * as z from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
+import { useUserContext } from '../../../context/AuthContext';
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { SignupValidation } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,13 @@ import { useToast } from "@/components/ui/use-toast";
 
 const SignupForm = () => {
   const { toast } = useToast();
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
-  const { mutateAsync: createUserAccount, isLoading: isCreatingUser } = useCreateUserAccount();
-  const { mutateAsync: signInAccount, isLoading: isSigningIn } = useSignInAccount();
+  const navigate = useNavigate();
+
+  const { mutateAsync: createUserAccount, isPending: isCreatingAccount } = useCreateUserAccount();
+  const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount();
+
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
     defaultValues: {
@@ -33,14 +38,19 @@ const SignupForm = () => {
     if (!newUser) {
       return toast({ title: 'Sign up failed. Please try again.' });
     }
-    console.log(newUser);
 
     const session = await signInAccount({ email: values.email, password: values.password });
     if (!session) {
       return toast({ title: 'Sign in failed. Please try again.' });
     }
 
-    
+    const isLoggedIn = await checkAuthUser();    
+    if (isLoggedIn) {
+      form.reset();
+      navigate('/');
+    } else {
+      return toast({ title: 'Sign in failed. Please try again.' });
+    }
   }
 
   return (
@@ -100,7 +110,7 @@ const SignupForm = () => {
             )}
           />
           <Button type="submit" className="shad-button_primary">
-            {isCreatingUser ? (
+            {isCreatingAccount ? (
               <div className="flex-center gap-2">
                 <Loader /> Loading...
               </div>
