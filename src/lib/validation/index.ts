@@ -6,3 +6,8 @@ export const SignupValidation = z.object({
   email: z.string().email({ message: 'This is not a valid email' }),
   password: z.string().min(8, { message:'Password must be at least 8 characters'})
 });
+
+export const SigninValidation = z.object({
+  email: z.string().email({ message: 'Wrong email or password' }),
+  password: z.string().min(8, { message: 'Wrong email or password' })
+});
