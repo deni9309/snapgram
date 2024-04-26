@@ -7,11 +7,10 @@ import { useUserContext } from '../../../context/AuthContext';
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { SignupValidation } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Loader from "@/components/shared/Loader";
 import { useToast } from "@/components/ui/use-toast";
-
 
 const SignupForm = () => {
   const { toast } = useToast();
@@ -80,6 +79,7 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="text" {...field} className="shad-input" />
                 </FormControl>
+                <FormMessage className="shad-form_message" />
               </FormItem>
             )}
           />
@@ -92,6 +92,7 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="text" {...field} className="shad-input" />
                 </FormControl>
+                <FormMessage className="shad-form_message" />
               </FormItem>
             )}
           />
@@ -104,6 +105,7 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="email" {...field} className="shad-input" />
                 </FormControl>
+                <FormMessage className="shad-form_message" />
               </FormItem>
             )}
           />
@@ -116,6 +118,7 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="password" {...field} className="shad-input" />
                 </FormControl>
+                <FormMessage className="shad-form_message" />
               </FormItem>
             )}
           />

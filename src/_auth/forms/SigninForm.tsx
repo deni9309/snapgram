@@ -7,7 +7,7 @@ import { useUserContext } from '../../../context/AuthContext';
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { SigninValidation } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Loader from "@/components/shared/Loader";
 import { useToast } from "@/components/ui/use-toast";
@@ -69,6 +69,7 @@ const SigninForm = () => {
                 <FormControl>
                   <Input type="email" {...field} className="shad-input" />
                 </FormControl>
+                <FormMessage className="shad-form_message" />
               </FormItem>
             )}
           />
@@ -81,6 +82,7 @@ const SigninForm = () => {
                 <FormControl>
                   <Input type="password" {...field} className="shad-input" />
                 </FormControl>
+                <FormMessage className="shad-form_message" />
               </FormItem>
             )}
           />
