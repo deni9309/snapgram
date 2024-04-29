@@ -1,6 +1,6 @@
 import { ID, Query } from "appwrite";
 
-import { TNewPost, TNewUser, TUpdatePost } from "@/types";
+import { TNewPost, TNewUser, TUpdatePost, TUpdateUser } from "@/types";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
 
 // ============================= AUTH =============================
@@ -236,7 +236,33 @@ export async function deleteFile(fileId: string) {
   }
 }
 
-/** GET RECENT POSTS */
+/** GET SEARCHED POSTS
+ * 
+ * Returns a list of filtered posts that satisfy the search term.
+ * @param searchTerm `string`
+ * @returns `Models.DocumentList<Models.Document>` of posts
+ */
+export async function searchPosts(searchTerm: string) {
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.search('caption', searchTerm)]
+    );
+
+    if (!posts) throw Error;
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/** GET RECENT POSTS
+ * 
+ * Returns 20 latest posts (sorted by `'$createdAt'` field)
+ * @returns `Models.DocumentList<Models.Document>` of posts
+ */
 export async function getRecentPosts() {
   try {
     const posts = await databases.listDocuments(
@@ -250,6 +276,32 @@ export async function getRecentPosts() {
     return posts;
   } catch (error) {
     console.error(error);
+  }
+}
+
+/** GET INFINITE POSTS
+ * @param pageParam `number` 
+ * @returns `Models.DocumentList<Models.Document>` of posts
+ */
+export async function getInfinitePosts({ pageParam }: { pageParam: number; }) {
+  const queries: any[] = [Query.orderDesc('$updatedAt'), Query.limit(9)];
+
+  if (pageParam) {
+    queries.push(Query.cursorAfter(pageParam.toString()));
+  }
+
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      queries
+    );
+
+    if (!posts) throw Error;
+
+    return posts;
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -276,8 +328,8 @@ export async function getPostById(postId?: string) {
  * 1. Handles the logic to update the post's file if there is one.
  * 2. Updates the post itself.
  * 3. If both operations are successful, returns the newly updated post.
- * @param post `type TUpdatePost`
- * @returns `Models.Document`
+ * @param post `TUpdatePost`
+ * @returns `Models.Document` of updated post
  */
 export async function updatePost(post: TUpdatePost) {
   const hasFileToUpdate = post.file.length > 0;
@@ -420,6 +472,145 @@ export async function deleteSavedPost(savedRecordId: string) {
     if (!result) throw Error;
 
     return { status: 'OK' };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/** GET USER'S POSTS
+ * 
+ * Returns a list of all posts created by the user with the given Id.  
+ * @param userId 
+ * @returns `Models.DocumentList<Models.Document>`
+ */
+export async function getUserPosts(userId?: string) {
+  if (!userId) return;
+
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.equal('creator', userId), Query.orderDesc('$createdAt')]
+    );
+
+    if (!posts) throw Error;
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// USER
+// ============================================================
+
+/** GET USERS
+ * 
+ * Returns a list of users ordered by `$createdAt` desc, with optional `limit` constraint of the result's length. 
+ * @param limit `number` (optional)
+ * @returns `Models.DocumentList<Models.Document>` of users
+ */
+export async function getUsers(limit?: number) {
+  const queries: any[] = [Query.orderDesc('$createdAt')];
+
+  if (limit) {
+    queries.push(Query.limit(limit));
+  }
+
+  try {
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+
+    if (!users) throw Error;
+
+    return users;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/** GET USER BY ID
+ * 
+ * Returns the user document by given id.
+ * @param userId 
+ * @returns `Models.Document` of user
+ */
+export async function getUserById(userId: string) {
+  try {
+    const user = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId
+    );
+
+    if (!user) throw Error;
+
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/** UPDATE USER
+ * 1. Handles the logic to update the user's file if there is one.
+ * 2. Updates the user himself.
+ * 3. If both operations are successful, returns the newly updated user.
+ * @param user `TUpdateUser`
+ * @returns `Models.Document` of  updated user
+ */
+export async function updateUser(user: TUpdateUser) {
+  const hasFileToUpdate = user.file.length > 0;
+
+  try {
+    let image = {
+      imageUrl: user.imageUrl,
+      imageId: user.imageId,
+    };
+
+    if (hasFileToUpdate) {
+      const uploadedFile = await uploadFile(user.file[0]);
+      if (!uploadedFile) throw Error;
+
+      const fileUrl = getFilePreview(uploadedFile.$id);
+      if (!fileUrl) {
+        await deleteFile(uploadedFile.$id);
+        throw Error;
+      }
+
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    }
+
+    // Update user
+    const updatedUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      user.userId,
+      {
+        name: user.name,
+        bio: user.bio,
+        imageUrl: image.imageUrl,
+        imageId: image.imageId
+      }
+    );
+
+    // Failed to update
+    if (!updatedUser) {
+      // Delete new file that has been recently uploaded
+      if (hasFileToUpdate) {
+        await deleteFile(image.imageId);
+      }
+      throw Error;
+    }
+
+    // Safely delete old file after successful update
+    if (user.imageId && hasFileToUpdate) {
+      await deleteFile(user.imageId);
+    }
+
+    return updatedUser;
   } catch (error) {
     console.log(error);
   }

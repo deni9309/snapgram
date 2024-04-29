@@ -5,7 +5,7 @@ import { Models } from "appwrite";
 import { useNavigate } from "react-router-dom";
 
 import { PostValidation } from "@/lib/validation";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
+import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "../../../context/AuthContext";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
@@ -19,8 +19,10 @@ type PostFormProps = {
   action: 'Create' | 'Update';
 };
 
-const PostForm = ({ post }: PostFormProps) => {
+const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: createPost, isPending: isLoadingCreate } = useCreatePost();
+
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } = useUpdatePost();
 
   const { user } = useUserContext();
   const { toast } = useToast();
@@ -36,8 +38,23 @@ const PostForm = ({ post }: PostFormProps) => {
     }
   });
 
-  // Handler
+  // Submit Handler
   async function onSubmit(values: z.infer<typeof PostValidation>) {
+    if (post && action === 'Update') {
+      const updatedPost = await updatePost({
+        ...values,
+        postId: post.$id,
+        imageId: post?.imageId,
+        imageUrl: post?.imageUrl
+      });
+
+      if (!updatedPost) {
+        toast({ title: 'An error occured! Please, try again.' });
+      }
+
+      return navigate(`/posts/${post.$id}`);
+    }
+
     const newPost = await createPost({
       ...values,
       userId: user.id
@@ -111,7 +128,14 @@ const PostForm = ({ post }: PostFormProps) => {
 
         <div className="flex justify-end items-center gap-4">
           <Button type="button" className="shad-button_dark_4">Cancel</Button>
-          <Button type="submit" className="shad-button_primary whitespace-nowrap">Submit</Button>
+          <Button
+            type="submit"
+            disabled={isLoadingUpdate || isLoadingCreate}
+            className="shad-button_primary whitespace-nowrap"
+          >
+            {(isLoadingUpdate || isLoadingCreate) && 'Loading...'}
+            {action} Post
+          </Button>
         </div>
       </form>
     </Form>
