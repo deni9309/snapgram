@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { useUserContext } from "../../../context/AuthContext";
+import { useUserContext } from "@/context/AuthContext";
 import { useDeletePost, useGetPostById, useGetUserPosts } from "@/lib/react-query/queriesAndMutations";
 import Loader from "@/components/shared/Loader";
 import { Button } from "@/components/ui/button";

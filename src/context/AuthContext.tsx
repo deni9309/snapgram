@@ -1,8 +1,8 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
-import { AuthContextType, TUser } from '../src/types';
-import { getCurrentUser } from '../src/lib/appwrite/api';
+import { AuthContextType, TUser } from '../../src/types';
+import { getCurrentUser } from '../../src/lib/appwrite/api';
 
 export const INITIAL_USER = {
   id: '',

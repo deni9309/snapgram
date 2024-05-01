@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import { PostValidation } from "@/lib/validation";
 import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations";
-import { useUserContext } from "../../../context/AuthContext";
+import { useUserContext } from "@/context/AuthContext";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";

@@ -17,23 +17,23 @@
 
   /* TYPOGRAPHY */
   .h1-bold {
-    @apply text-[36px] font-bold leading-[140%] tracking-tighter;
+    @apply text-[36px] font-bold leading-[140%] tracking-tight;
   }
 
   .h1-semibold {
-    @apply text-[36px] font-semibold leading-[140%] tracking-tighter;
+    @apply text-[36px] font-semibold leading-[140%] tracking-tight;
   }
 
   .h2-bold {
-    @apply text-[30px] font-bold leading-[140%] tracking-tighter;
+    @apply text-[30px] font-bold leading-[140%] tracking-tight;
   }
 
   .h3-bold {
-    @apply text-[24px] font-bold leading-[140%] tracking-tighter;
+    @apply text-[24px] font-bold leading-[140%] tracking-tight ;
   }
 
   .base-semibold {
-    @apply text-[16px] font-semibold leading-[140%] tracking-tighter;
+    @apply text-[16px] font-semibold leading-[140%] tracking-tight;
   }
 
   .base-medium {
@@ -53,7 +53,7 @@
   }
 
   .small-semibold {
-    @apply text-[14px] font-semibold leading-[140%] tracking-tighter;
+    @apply text-[14px] font-semibold leading-[140%] tracking-tight;
   }
 
   .small-medium {
@@ -131,7 +131,7 @@
   }
 
   .explore-search {
-    @apply h-12 bg-dark-4 border-none placeholder:text-light-4 focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0 !important;
+    @apply h-12 bg-dark-4 border-none placeholder:text-light-4 focus:outline-none ps-2 focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0 !important;
   }
 
   /* Home */
