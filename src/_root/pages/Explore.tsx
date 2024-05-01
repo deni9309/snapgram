@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useInView } from "react-intersection-observer";
 
 import GridPostList from "@/components/shared/GridPostList";
 import SearchResults from "@/components/shared/SearchResults";
@@ -7,12 +8,18 @@ import useDebounce from "@/hooks/useDebounce";
 import Loader from "@/components/shared/Loader";
 
 const Explore = () => {
+  const { ref, inView } = useInView();
   const { data: posts, fetchNextPage, hasNextPage } = useGetPosts();
 
   const [searchValue, setSearchValue] = useState('');
 
   const debouncedValue = useDebounce(searchValue, 500);
   const { data: searchedPosts, isFetching: isSearchFetching } = useSearchPosts(debouncedValue);
+
+  useEffect(() => { 
+    if (inView && !searchValue) fetchNextPage();
+
+  }, [inView, searchValue]);
 
   if (!posts) return (
     <div className="w-full text-center"><Loader /></div>
@@ -61,6 +68,12 @@ const Explore = () => {
           ))
         )}
       </div>
+
+      {hasNextPage && !searchValue && (
+        <div ref={ref} className="mt-10">
+          <Loader />
+        </div>
+      )}
     </div>
   );
 };
