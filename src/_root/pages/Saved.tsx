@@ -7,7 +7,7 @@ import { Models } from "appwrite";
 
 const Saved = () => {
   const { toast } = useToast();
-  const { data: currentUser, isLoading: isUserLoading, isError: isErrorUser } = useGetCurrentUser();
+  const { data: currentUser, isError: isErrorUser } = useGetCurrentUser();
 
   if (isErrorUser) {
     toast({ title: 'An error occured! Please, try refreshing the page.' });
