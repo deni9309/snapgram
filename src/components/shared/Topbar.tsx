@@ -1,20 +1,26 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from "react-router-dom";
 
 import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
 import { Button } from "../ui/button";
-import { useUserContext } from "@/context/AuthContext";
+import { INITIAL_USER, useUserContext } from "@/context/AuthContext";
+import Loader from "./Loader";
 
 const Topbar = () => {
-  const { mutateAsync: signOutAccount, isSuccess } = useSignOutAccount();
+  const { mutate: signOut } = useSignOutAccount();
   const navigate = useNavigate();
 
-  const { user } = useUserContext();
+  const { user, setUser, setIsAuthenticated, isLoading } = useUserContext();
 
-  useEffect(() => {
-    if (isSuccess) navigate(0);
+  const handleSignOut = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
 
-  }, [isSuccess]);
+    signOut();
+    setIsAuthenticated(false);
+    setUser(INITIAL_USER);
+
+    navigate('/sign-in');
+  };
 
   return (
     <section className="topbar">
@@ -22,22 +28,24 @@ const Topbar = () => {
         <Link to="/" className="flex items-center gap-3">
           <img src="/assets/images/logo.svg" alt="logo" width={130} height={325} />
         </Link>
-        <div className="flex gap-4">
-          <Button
-            variant="ghost"
-            className="shad-button_ghost"
-            onClick={() => signOutAccount}
-          >
-            <img src="/assets/icons/logout.svg" alt="logout" width={24} height={24} />
-          </Button>
-          <Link to={`/profile/${user.id}`} className="flex-center gap-3">
-            <img
-              src={user.imageUrl || '/assets/icons/profile-placeholder.svg'}
-              alt="profile"
-              className="w-8 h-8 rounded-full"
-            />
-          </Link>
-        </div>
+
+        {isLoading ? <Loader /> : (
+          <div className="flex gap-4">
+            <Button
+              onClick={(e) => handleSignOut(e)}
+              variant="ghost"
+              className="shad-button_ghost"
+            >
+              <img src="/assets/icons/logout.svg" alt="logout" width={24} height={24} />
+            </Button>
+            <Link to={`/profile/${user.id}`} className="flex-center gap-3">
+              <img src={user.imageUrl || '/assets/icons/profile-placeholder.svg'}
+                alt="profile"
+                className="w-8 h-8 rounded-full"
+              />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

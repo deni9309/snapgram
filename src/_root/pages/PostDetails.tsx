@@ -6,6 +6,7 @@ import Loader from "@/components/shared/Loader";
 import { Button } from "@/components/ui/button";
 import { multiFormatDateString } from "@/lib/utils";
 import PostStats from "@/components/shared/PostStats";
+import GridPostList from "@/components/shared/GridPostList";
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -101,13 +102,13 @@ const PostDetails = () => {
 
       <div className="w-full max-w-5xl">
         <hr className="border w-full border-dark-4/80" />
-
-        <h3 className="body-bold md:h3-bold w-full my-10">More Related Posts</h3>
         {isUserPostsPending || !relatedPosts ? (
           <Loader />
-        ) : (
-          <p>related - Grid post list </p>
-          // <GridPostList posts={relatedPosts} />
+        ) : relatedPosts.length > 0 && (
+          <>
+            <h3 className="body-bold md:h3-bold w-full my-10">More from this user</h3>
+            <GridPostList posts={relatedPosts} />
+          </>
         )}
       </div>
     </div>

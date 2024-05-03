@@ -96,7 +96,7 @@ export const useGetPostById = (postId?: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
     queryFn: () => getPostById(postId),
-    enabled: !!postId
+   // enabled: !!postId
   });
 };
 
@@ -104,7 +104,7 @@ export const useGetUserPosts = (userId?: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_USER_POSTS, userId],
     queryFn: () => getUserPosts(userId),
-    enabled: !!userId
+  //  enabled: !!userId
   });
 };
 
